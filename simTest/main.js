@@ -1,4 +1,4 @@
-var harvester = require('roles/Harvester.js');
+var harvester = require('Harvester');
 
 module.exports.loop = function() {
     // executed every tick
