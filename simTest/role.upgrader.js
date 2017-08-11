@@ -28,8 +28,8 @@ let roleUpgrader = new Role(
     /** @param {StructureSpawn} spawn**/
 roleUpgrader.create = function(spawn){
         let newCreep = spawn.createCreep([WORK,CARRY,MOVE,MOVE],undefined,{role:this.name});
-        if(newC)
-          console.log("Spawning upgrader"+newCreep.name);
+        if(_.isString(newCreep))
+            console.log("Spawning upgrader "+newCreep.name);
 };
 
 module.exports = roleUpgrader;

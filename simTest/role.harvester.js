@@ -34,7 +34,8 @@ let roleHarvester = new Role(
  */
 roleHarvester.create = function(spawn){
         let newCreep = spawn.createCreep([WORK,CARRY,MOVE,MOVE],undefined,{role:this.name});
-        console.log("Spawning harvester"+newCreep.name);
+        if(_.isString(newCreep))
+            console.log("Spawning harvester "+newCreep.name);
 };
 
 module.exports = roleHarvester;
