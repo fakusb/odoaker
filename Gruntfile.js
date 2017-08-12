@@ -4,6 +4,7 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-screeps');
 
+    // noinspection Annotator
     grunt.initConfig({
         screeps: {
             options: {

@@ -30,8 +30,11 @@ class Role{
      */
     static run (creep){
         let roleName = creep.memory.role;
-        if(!_.isUndefined(roleName))
-            Role.byName[roleName].run(creep);
+        if(!_.isUndefined(roleName)) {
+            if (!creep.spawning) {
+                Role.byName[roleName].run(creep);
+            }
+        }
         else {
             console.log("Unassigned creep:" + creep.name)
         }

@@ -1,41 +1,47 @@
 let Role = require('role');
+let findEnergy = require('task.findEnergy');
 
-let roleHarvester = new Role(
-    'harvest',
-    /**
-     * @param {Creep} creep
-     */
-    function(creep) {
-        if(creep.carry.energy < creep.carryCapacity) {
-            const sources = creep.room.find(FIND_SOURCES);
-            if(creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00'}});
+let harvestFilter = {
+    filter: (structure) => {
+        return (structure.structureType === STRUCTURE_EXTENSION ||
+            structure.structureType === STRUCTURE_SPAWN ||
+            structure.structureType === STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
+    }
+};
+
+function harvestRun(creep) {
+    let targetInRange = _.first(creep.pos.findInRange(FIND_MY_STRUCTURES,1,harvestFilter));
+
+    if(creep.carry.energy > 0 && targetInRange){
+        let res = creep.transfer(targetInRange,RESOURCE_ENERGY);
+        if(res !== OK){
+            console.log("builder: unexpected case");
+        }
+    }
+    else if(creep.carry.energy === 0) {
+        findEnergy.run(creep);
+    }
+    else {
+        let targets = creep.room.find(FIND_MY_STRUCTURES,harvestFilter);
+        if(targets.length > 0) {
+            if(creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
             }
         }
-        else {
-            let targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (structure.structureType === STRUCTURE_EXTENSION ||
-                        structure.structureType === STRUCTURE_SPAWN ||
-                        structure.structureType === STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
-                }
-            });
-            if(targets.length > 0) {
-                if(creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
-                }
-            }
-        }
-    });
+    }
+}
+
+let roleHarvester = new Role('harvester',harvestRun);
 
 /**
  *
  * @param {StructureSpawn} spawn
  */
 roleHarvester.create = function(spawn){
-        let newCreep = spawn.createCreep([WORK,CARRY,MOVE,MOVE],undefined,{role:this.name});
-        if(_.isString(newCreep))
-            console.log("Spawning harvester "+newCreep.name);
+        let newCreep = spawn.createCreep([CARRY,CARRY,MOVE,MOVE],undefined,{role:this.name});
+        if(_.isString(newCreep)) {
+            console.log("Spawning " + this.name);
+        }
 };
 
 module.exports = roleHarvester;
