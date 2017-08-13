@@ -38,7 +38,7 @@ module.exports.loop = function() {
     //ensure creeps get spawned
     //TODO: Priority (harvester over upgrader) and simple spawn-control
     let creepsWant = {};
-    creepsWant[harvester.name]=2;
+    creepsWant[harvester.name]=3;
     creepsWant[upgrader.name]=6;
     creepsWant[builder.name]=2;
 

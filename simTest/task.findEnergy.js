@@ -21,14 +21,14 @@ let taskFindEnergy = {
             targets = targets.concat(creep.room.find(FIND_DROPPED_RESOURCES, {
                 /**@param {Resource} res */
                 filter: function (res) {
-                    return res.resourceType === RESOURCE_ENERGY;// && res.amount >= creep.carryCapacity - _.sum(creep.carry);
+                    return res.resourceType === RESOURCE_ENERGY && res.amount >= _.max([50,creep.carryCapacity - _.sum(creep.carry)]);
                 }
             }));
             //or container
             targets = targets.concat(creep.room.find(FIND_STRUCTURES, {
                  /**@param {StructureContainer} structure */
                 filter: function (structure) {
-                    return structure.structureType===STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 0;// >= creep.carryCapacity;
+                    return structure.structureType===STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 50;// >= creep.carryCapacity;
                 }}));
 
             //or miners (miners drop...)

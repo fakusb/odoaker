@@ -14,12 +14,13 @@ function builderRun(creep) {
     }
     else if(creep.carry.energy < creep.carryCapacity && (creep.room.energyAvailable/creep.room.energyCapacityAvailable >0.8)) {
         findEnergy.run(creep);
+
     }
-    else {
-        let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
-        if(targets.length > 0) {
-            if(creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+    else if (creep.carry.energy>0){
+        let target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+        if(target) {
+            if(creep.build(target) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
             }
         }
     }
