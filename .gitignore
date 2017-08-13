@@ -59,4 +59,5 @@ typings/
 
 password.js
 .idea
-
+built/
+typings/

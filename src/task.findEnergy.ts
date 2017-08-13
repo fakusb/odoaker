@@ -1,6 +1,6 @@
 //let Role = require('role');
-//let _ = require('lodash');
-let Miner =  require('role.miner');
+import _ = require('lodash');
+//import Miner =  require('./role.miner');
 let taskFindEnergy = {
     /**
      *
@@ -82,4 +82,4 @@ let taskFindEnergy = {
         }
     }
 };
-module.exports = taskFindEnergy;
+export = taskFindEnergy;
