@@ -1,28 +1,35 @@
 import {Role} from './roleManager'
 import _ = require('lodash');
-/**
- * @param {Creep} creep
- */
-function miningPower(creep) {
+
+function miningPower(creep:Creep) {
     return 2*creep.getActiveBodyparts('WORK');
 }
 
 /**
  * @param {Creep} creep
  */
-function freeSpace(creep) {
+function freeSpace(creep:Creep) {
     return creep.carryCapacity-_.sum(creep.carry);
 }
 
 export const miner = new Role(
     'miner',
-    function(creep) {
+    function(creep:Creep) {
         /** @type Source*/
-        const source = Game.getObjectById(creep.memory.source);
+        const source:(Source|null)= Game.getObjectById(creep.memory.source);
+        if(!source){
+            console.log("ERROR for miner: no source in same room");
+            return;
+        }
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
         }
         else {
+            //CPU
+            const container : StructureContainer | undefined = _.first(source.pos.findInRange(FIND_STRUCTURES,1));
+            if(container && !_.isEqual(creep.pos,container.pos)){
+                creep.moveTo(container);
+            }
             //CPU: can save by dropping in bursts
             //harvested; drop exactly what we can not carry anymore
             let toDrop = _.max([0, miningPower(creep) - freeSpace(creep)]);
@@ -32,13 +39,13 @@ export const miner = new Role(
         }
     }
 );
-export function createMiner(spawn,toMine) {
+export function createMiner(spawn:StructureSpawn,toMine:Source) {
     let newCreep = spawn.createCreep([MOVE, MOVE].concat(new Array(_.max([2, _.min([6, _.floor((spawn.room.energyAvailable - 2 * BODYPART_COST.move) / BODYPART_COST.work)])])).fill(WORK)), undefined, {
-        role: this.name,
+        role: miner.name,
         source: toMine.id
     });
     if (_.isString(newCreep)) {
-        console.log("Spawning " + this.name);
+        console.log("Spawning " + miner.name);
         if (!Memory.sources) {
             Memory.sources = {};
         }
@@ -54,7 +61,7 @@ export function createMinersForSpawn(spawn:StructureSpawn){
         /**
          * @param {Source} source
          */
-        function(source){
+        function(source:Source){
             if(!Memory.sources) {
                 Memory.sources = {};
             }

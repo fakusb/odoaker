@@ -6,11 +6,11 @@ import _ = require('lodash');
  * @param {Creep} creep
  */
 export let RoleManager = {
-    byName : {},
+    byName : {} as {[name:string]:Role},
     register(role:Role){
         this.byName[role.name]=role;
     },
-    run (creep) {
+    run (creep:Creep) {
         let roleName = creep.memory.role;
         if (!_.isUndefined(roleName)) {
             if (!creep.spawning) {
@@ -26,14 +26,18 @@ export let RoleManager = {
 export class Role {
     name: string;
     run: (x: Creep) => void;
-    create?:(Spawn) => void;
-    constructor(name,run,create?) {
+    constructor(name:string,run:(x: Creep) => void) {
         this.name = name;
         this.run = run;
-        if(create) {
-            this.create = create;
-        }
         RoleManager.register(this);
+    }
+}
+
+export class ManagedRole extends Role {
+    create:(x:StructureSpawn) => void;
+    constructor(name:string,run:(x: Creep) => void,create:(x: StructureSpawn) => void) {
+        super(name,run);
+        this.create = create;
     }
 }
 

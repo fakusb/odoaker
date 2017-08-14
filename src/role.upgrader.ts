@@ -1,15 +1,20 @@
 import _ = require('lodash');
 
-import {Role} from './roleManager'
+import {ManagedRole} from './roleManager'
 import taskFindEnergy = require('./task.findEnergy');
 
 
-export const roleUpgrader = new Role(
+export const roleUpgrader = new ManagedRole(
     'upgrader',
     function(creep) {
+        const controller = creep.room.controller;
+        if(!controller){
+            console.log("Upgrader error: no controller");
+            return;
+        }
         if (!creep.memory.started) {
-            if (!creep.pos.inRangeTo(creep.room.controller, 8)) {
-                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+         if (!creep.pos.inRangeTo(controller, 8)) {
+                creep.moveTo(controller, {visualizePathStyle: {stroke: '#ffffff'}});
                 return;
             }
             else {
@@ -24,10 +29,9 @@ export const roleUpgrader = new Role(
             creep.memory.upgrading = true;
             creep.say('⚡ upgrade');
         }
-
         if (creep.memory.upgrading) {
-            if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+            if (creep.upgradeController(controller) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(controller, {visualizePathStyle: {stroke: '#ffffff'}});
             }
         }
         else {
@@ -37,8 +41,8 @@ export const roleUpgrader = new Role(
     function(spawn:StructureSpawn) {
         let newCreep = spawn.createCreep(
             [CARRY, CARRY, MOVE].concat(new Array(_.max([2, _.floor((spawn.room.energyAvailable - BODYPART_COST.move - 2 * BODYPART_COST.carry) / (BODYPART_COST.work + BODYPART_COST.move))])).fill(MOVE))
-                .concat(new Array(_.max([2, _.floor((spawn.room.energyAvailable - BODYPART_COST.move - 2 * BODYPART_COST.carry) / (BODYPART_COST.work + BODYPART_COST.move))])).fill(WORK)), undefined, {role: this.name});
+                .concat(new Array(_.max([2, _.floor((spawn.room.energyAvailable - BODYPART_COST.move - 2 * BODYPART_COST.carry) / (BODYPART_COST.work + BODYPART_COST.move))])).fill(WORK)), undefined, {role: roleUpgrader.name});
         if (_.isString(newCreep)) {
-            console.log("Spawning " + this.name);
+            console.log("Spawning " + roleUpgrader.name);
         }
     });

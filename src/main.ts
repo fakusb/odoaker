@@ -2,26 +2,23 @@ import harvester = require('./role.harvester')
 import upgrader = require('./role.upgrader')
 import miner = require('./role.miner')
 import builder = require('./role.builder')
-import {RoleManager} from './roleManager'
+import {ManagedRole, RoleManager} from './roleManager'
+import creepManager = require('./creepManager')
 import _ = require('lodash');
 // loglevel = 0;
 
 //console.log('uploaded');
 
-export function loop() {
+// noinspection JSUnusedGlobalSymbols
+function mloop() {
     // executed every tick
-    //free Memory
-    _.forEach(Memory.creeps,function (creep,name) {
-        if (_.isUndefined(Game.creeps[name])) {
-            console.log("Memory garbage collect: " + name);
-            delete Memory.creeps[name];
-        }
-    });
+
+    creepManager.buryDeadCreeps();
 
     const tower = Game.getObjectById('598ee13af1af831393cd76f7') as StructureTower;
     if(tower) {
         const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (structure) => {
+            filter: (structure:Structure) => {
                 let limit = structure.hitsMax;
                 return structure.hits < limit;
             }}) as Structure;
@@ -38,7 +35,7 @@ export function loop() {
 
     //ensure creeps get spawned
     //TODO: Priority (harvester over upgrader) and simple spawn-control
-    let creepsWant = {};
+    let creepsWant : {[name:string]:number} = {};
     creepsWant[harvester.harvester.name]=3;
     creepsWant[upgrader.roleUpgrader.name]=6;
     creepsWant[builder.builder.name]=2;
@@ -46,17 +43,16 @@ export function loop() {
     const spawn = Game.spawns.Spawn1 as StructureSpawn;
 
     let creepsPerRole = _.groupBy(Game.creeps,'memory.role');
-    _.forEach(creepsWant, function (want, roleName) {
+    _.forEach(creepsWant, function (want, roleName:string) {
         if (_.size(creepsPerRole[roleName]) < want) {
-            RoleManager.byName[roleName].create(spawn);
+            (RoleManager.byName[roleName] as ManagedRole).create(spawn);
         }
     });
     miner.createMinersForSpawn(spawn);
 
-    _.forEach(Game.creeps,function(creep){
-        RoleManager.run(creep)});
-
-
+    creepManager.runAllCreeps();
     //console.log("Limit: "+Game.cpu.tickLimit+"/"+Game.cpu.limit+', Bucket: '+Game.cpu.bucket);
 
 }
+
+export const loop = mloop();

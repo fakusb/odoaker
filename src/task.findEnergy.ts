@@ -6,29 +6,31 @@ let taskFindEnergy = {
      *
      * @param {Creep} creep
      */
-    run(creep){
+    run(creep:Creep){
         //TODO: pickup all nearby resources on floor?
-        let canPickup = creep.pos.findInRange(FIND_DROPPED_RESOURCES,1,{filter : function(res){return res.resourceType===RESOURCE_ENERGY}});
+        let canPickup = creep.pos.findInRange(FIND_DROPPED_RESOURCES,1,{filter : function(res:Resource){return res.resourceType===RESOURCE_ENERGY}})[0] as (Resource|undefined);
 
-        creep.pickup(canPickup[0]);
+        if(canPickup) {
+            creep.pickup(canPickup);
+        }
 
         //TODO: more intelligent replaning, maybe a treshhold in both directions (hysteris?)
         if(!creep.memory.target) {
-            let targets = [];
+            let targets : ((Resource|StructureContainer)[])= [];
             //TODO: do mot drop miner resources
             //TODO: may store target in some way
             //either find full resource piles
             targets = targets.concat(creep.room.find(FIND_DROPPED_RESOURCES, {
                 /**@param {Resource} res */
-                filter: function (res) {
+                filter: function (res:Resource) {
                     return res.resourceType === RESOURCE_ENERGY && res.amount >= _.max([50,creep.carryCapacity - _.sum(creep.carry)]);
                 }
             }));
             //or container
             targets = targets.concat(creep.room.find(FIND_STRUCTURES, {
                  /**@param {StructureContainer} structure */
-                filter: function (structure) {
-                    return structure.structureType===STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY] > 50;// >= creep.carryCapacity;
+                filter: function (structure:Structure) {
+                    return structure.structureType===STRUCTURE_CONTAINER && (structure as StructureContainer).store[RESOURCE_ENERGY] > 50;// >= creep.carryCapacity;
                 }}));
 
             //or miners (miners drop...)
