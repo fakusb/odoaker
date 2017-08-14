@@ -25,7 +25,7 @@ export const harvester =
                 }
             }
             else if (energy === 0) {
-                findEnergy.run(creep);
+                findEnergy.run(creep,true);
             }
             else {
                 let targets : Structure[] = creep.room.find(FIND_MY_STRUCTURES, harvestFilter);

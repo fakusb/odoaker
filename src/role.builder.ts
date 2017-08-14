@@ -15,7 +15,7 @@ export let builder = new ManagedRole(
             }
         }
         else if(energy < creep.carryCapacity && (creep.room.energyAvailable/creep.room.energyCapacityAvailable >0.8)) {
-            findEnergy.run(creep);
+            findEnergy.run(creep,false);
 
         }
         else if (energy>0){

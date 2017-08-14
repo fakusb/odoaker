@@ -4,7 +4,7 @@ import miner = require('./role.miner')
 import builder = require('./role.builder')
 import {ManagedRole, RoleManager} from './roleManager'
 import creepManager = require('./creepManager')
-import _ = require('lodash');
+import _ = require('lodash')
 // loglevel = 0;
 
 //console.log('uploaded');
@@ -52,7 +52,6 @@ function mloop() {
 
     creepManager.runAllCreeps();
     //console.log("Limit: "+Game.cpu.tickLimit+"/"+Game.cpu.limit+', Bucket: '+Game.cpu.bucket);
-
 }
 
 export const loop = mloop();

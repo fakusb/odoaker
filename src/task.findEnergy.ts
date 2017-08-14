@@ -6,7 +6,7 @@ let taskFindEnergy = {
      *
      * @param {Creep} creep
      */
-    run(creep:Creep){
+    run(creep:Creep,useStorage:boolean){
         //TODO: pickup all nearby resources on floor?
         let canPickup = creep.pos.findInRange(FIND_DROPPED_RESOURCES,1,{filter : function(res:Resource){return res.resourceType===RESOURCE_ENERGY}})[0] as (Resource|undefined);
 
@@ -33,6 +33,16 @@ let taskFindEnergy = {
                     return structure.structureType===STRUCTURE_CONTAINER && (structure as StructureContainer).store[RESOURCE_ENERGY] > 50;// >= creep.carryCapacity;
                 }}));
 
+            //or storage
+            if(useStorage) {
+                targets = targets.concat(creep.room.find(FIND_STRUCTURES, {
+                    /**@param {StructureContainer} structure */
+                    filter: function (structure: Structure) {
+                        return structure.structureType === STRUCTURE_STORAGE;// >= creep.carryCapacity;
+                    }
+                }));
+            }
+
             //or miners (miners drop...)
             // targets = targets.concat(creep.room.find(FIND_MY_CREEPS, {
             //     /**@param {Creep} miner */
@@ -58,7 +68,7 @@ let taskFindEnergy = {
                 }
                 delete creep.memory.target;
             }
-            else if (target instanceof StructureContainer){
+            else if (target instanceof StructureContainer || target instanceof StructureStorage){
                 let res = creep.withdraw(target,RESOURCE_ENERGY);
                 if(res===ERR_NOT_IN_RANGE){//|| res===ERR_NOT_ENOUGH_ENERGY){
                     res=creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
