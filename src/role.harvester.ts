@@ -7,7 +7,7 @@ const harvestFilter = {
         return (structure.structureType === STRUCTURE_EXTENSION ||
             structure.structureType === STRUCTURE_SPAWN ||
             structure.structureType === STRUCTURE_TOWER)
-            && (tower => tower.energy<tower.energyCapacity)(structure as Tower);
+            && (tower => tower.energy<tower.energyCapacity)(structure as (StructureExtension | StructureSpawn | StructureTower));
     }
 };
 
@@ -29,9 +29,16 @@ export const harvester =
             }
             else {
                 let targets : Structure[] = creep.room.find(FIND_MY_STRUCTURES, harvestFilter);
+                let target : Structure;
                 if (targets.length > 0) {
-                    if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+                    target = targets[0];
+                }
+                else {
+                    target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES,{filter: {structureType : STRUCTURE_STORAGE}});
+                }
+                if(target){
+                    if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
                     }
                 }
             }
