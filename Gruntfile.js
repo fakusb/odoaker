@@ -24,6 +24,7 @@ module.exports = function(grunt) {
             }
         }
     });
-    grunt.registerTask('full', ['ts', 'screeps']);
+
+    grunt.registerTask('default', ['ts', 'screeps']);
 
 };
