@@ -35,7 +35,7 @@ export const roleUpgrader = new ManagedRole(
             }
         }
         else {
-            taskFindEnergy.run(creep);
+            taskFindEnergy.run(creep,false);
         }
     },
     function(spawn:StructureSpawn) {

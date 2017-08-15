@@ -4,6 +4,7 @@ import miner = require('./role.miner')
 import builder = require('./role.builder')
 import {ManagedRole, RoleManager} from './roleManager'
 import creepManager = require('./creepManager')
+import energyManager = require('./energyManager')
 import _ = require('lodash')
 // loglevel = 0;
 
@@ -14,6 +15,7 @@ function mloop() {
     // executed every tick
 
     creepManager.buryDeadCreeps();
+    energyManager.garbageCollect();
 
     const tower = Game.getObjectById('598ee13af1af831393cd76f7') as StructureTower;
     if(tower) {

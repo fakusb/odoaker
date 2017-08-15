@@ -11,6 +11,5 @@
     "typescript": "^2.4.2"
   },
   "dependencies": {
-    "screeps-profiler": "^2.0.1"
   }
 }

@@ -15,13 +15,11 @@ export let builder = new ManagedRole(
             }
             return;
         }
-        else if(energy < creep.carryCapacity && (creep.room.energyAvailable/creep.room.energyCapacityAvailable >0.8)) {
-            findEnergy.run(creep,false);
 
         let target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES) as ConstructionSite;
         if(target) {
             if (energy < creep.carryCapacity && (creep.room.energyAvailable / creep.room.energyCapacityAvailable > 0.8)) {
-                findEnergy.run(creep);
+                findEnergy.run(creep,true);
             }
             else if (energy > 0) {
                 if (creep.build(target) === ERR_NOT_IN_RANGE) {
