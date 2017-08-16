@@ -3,15 +3,17 @@ import _ = require('lodash');
 //import Miner =  require('./role.miner');
 import EnergyManager = require('./energyManager');
 import {assert, freeCapacity} from "./utils";
-import {EnergyManaged} from "./energyManager";
+import {EnergyManaged, totalEnergy} from "./energyManager";
 let taskFindEnergy = {
 
     run(creep:Creep,useStorage:boolean){
+        let didPickup = 0;
         //TODO: pickup all nearby resources on floor?
-        let canPickup = creep.pos.findInRange(FIND_DROPPED_RESOURCES,1,{filter : function(res:Resource){return res.resourceType===RESOURCE_ENERGY}})[0] as (Resource|undefined);
+        let pile = creep.pos.findInRange(FIND_DROPPED_RESOURCES,1,{filter : function(res:Resource){return res.resourceType===RESOURCE_ENERGY}})[0] as (Resource|undefined);
         //
-        if(canPickup) {
-             creep.pickup(canPickup);
+        if(pile) {
+             creep.pickup(pile);
+             didPickup += pile.amount;
         }
 
         //TODO: more intelligent replaning, maybe a treshhold in both directions (hysteris?)
@@ -60,12 +62,13 @@ let taskFindEnergy = {
                 }
             }
             else if (target instanceof StructureContainer || target instanceof StructureStorage){
-                let res = creep.withdraw(target,RESOURCE_ENERGY);
+                const amount = _.min([freeCapacity(creep)-didPickup,totalEnergy(target)]);
+                let res = creep.withdraw(target,RESOURCE_ENERGY,amount);
                 if(res===ERR_NOT_IN_RANGE){//|| res===ERR_NOT_ENOUGH_ENERGY){
                     res=creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
                 }
                 else{
-                    assert(res===OK);
+                    assert(res===OK,"withdraw returned "+res);
                     EnergyManager.cancelReservation(creep,target);
                     delete creep.memory.target;
                 }

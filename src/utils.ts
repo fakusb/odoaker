@@ -1,7 +1,9 @@
-export function assert(b:boolean){
+export function assert(b:boolean,text?:string){
     if(!b){
         let stack = new Error().stack;
-        console.log("Assert failed: "+stack);
+        let msg = "Assert failed: "+(text?text:"")+"\n"+stack
+        console.log(msg);
+        Game.notify(msg,60);
     }
 }
 
