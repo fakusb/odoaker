@@ -36,13 +36,14 @@ function mloop() {
 
 
     //ensure creeps get spawned
+    const spawn = Game.spawns.Spawn1 as StructureSpawn;
+
     //TODO: Priority (harvester over upgrader) and simple spawn-control
     let creepsWant : {[name:string]:number} = {};
     creepsWant[harvester.harvester.name]=3;
     creepsWant[upgrader.roleUpgrader.name]=6;
-    creepsWant[builder.builder.name]=2;
+    creepsWant[builder.builder.name]=spawn.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)?2:0;
 
-    const spawn = Game.spawns.Spawn1 as StructureSpawn;
 
     let creepsPerRole = _.groupBy(Game.creeps,'memory.role');
     _.forEach(creepsWant, function (want, roleName:string) {
