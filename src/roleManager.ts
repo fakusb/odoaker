@@ -5,6 +5,12 @@ import _ = require('lodash');
  * @callback runRole
  * @param {Creep} creep
  */
+declare global {
+    interface CreepMemory {
+        role: string
+    }
+}
+
 export let RoleManager = {
     byName : {} as {[name:string]:Role},
     register(role:Role){

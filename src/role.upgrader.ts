@@ -3,6 +3,12 @@ import _ = require('lodash');
 import {ManagedRole} from './roleManager'
 import taskFindEnergy = require('./task.findEnergy');
 
+declare global{
+    interface CreepMemory {
+        started? : boolean;
+        upgrading? : boolean;
+    }
+}
 
 export const roleUpgrader = new ManagedRole(
     'upgrader',

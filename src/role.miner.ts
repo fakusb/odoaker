@@ -2,7 +2,7 @@ import {Role} from './roleManager'
 import _ = require('lodash');
 
 function miningPower(creep:Creep) {
-    return 2*creep.getActiveBodyparts('WORK');
+    return 2*creep.getActiveBodyparts(WORK);
 }
 
 /**
@@ -10,6 +10,12 @@ function miningPower(creep:Creep) {
  */
 function freeSpace(creep:Creep) {
     return creep.carryCapacity-_.sum(creep.carry);
+}
+
+declare global{
+    interface CreepMemory {
+        source? : string;
+    }
 }
 
 export const miner = new Role(

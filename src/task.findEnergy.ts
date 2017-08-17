@@ -4,6 +4,13 @@ import _ = require('lodash');
 import EnergyManager = require('./energyManager');
 import {assert, freeCapacity} from "./utils";
 import {EnergyManaged} from "./energyManager";
+
+declare global {
+    interface CreepMemory {
+        target?: string
+    }
+}
+
 let taskFindEnergy = {
 
     run(creep:Creep,useStorage:boolean){
