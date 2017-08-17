@@ -1,7 +1,8 @@
 
 import {assert} from "./utils";
+import _ = require('lodash')
 
-export type EnergyManaged = StructureSpawn | StructureExtension | StructureContainer | StructureStorage | Resource;
+export type EnergyManaged = StructureSpawn | StructureExtension | StructureContainer | StructureStorage | StructureTower | Resource;
 
 interface energyManagerState {
     reservedEnergy : {[targetId:string]:{[claimerId:string]:number}};

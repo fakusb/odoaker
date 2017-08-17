@@ -17,7 +17,7 @@ const deliverEnergyFilter = {
 export const harvester =
     new ManagedRole("harvester",
         function(creep:Creep) {
-            let targetInRange : Structure = _.first(creep.pos.findInRange(FIND_MY_STRUCTURES, 1, deliverEnergyFilter));
+            let targetInRange = _.first(creep.pos.findInRange(FIND_MY_STRUCTURES, 1, deliverEnergyFilter) as Structure[]);
             let energy = creep.carry.energy || 0;
             if (energy > 0 && targetInRange) {
                 let res = creep.transfer(targetInRange, RESOURCE_ENERGY);
@@ -30,12 +30,12 @@ export const harvester =
             }
             else {
                 let targets : Structure[] = creep.room.find(FIND_MY_STRUCTURES, deliverEnergyFilter);
-                let target : Structure;
+                let target : Structure | undefined;
                 if (targets.length > 0) {
                     target = targets[0];
                 }
                 else {
-                    target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES,{filter: {structureType : STRUCTURE_STORAGE}});
+                    target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES,{filter: {structureType : STRUCTURE_STORAGE}}) as StructureStorage | undefined;
                 }
                 if(target){
                     if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {

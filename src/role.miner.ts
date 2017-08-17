@@ -32,14 +32,14 @@ export const miner = new Role(
         }
         else {
             //CPU
-            const container : StructureContainer | undefined = _.first(source.pos.findInRange(FIND_STRUCTURES,1));
+            const container = _.first(source.pos.findInRange(FIND_STRUCTURES,1,{filter :{structureType:STRUCTURE_CONTAINER}}) as StructureContainer[]);
             if(container && !_.isEqual(creep.pos,container.pos)){
                 creep.moveTo(container);
             }
             //CPU: can save by dropping in bursts
             //harvested; drop exactly what we can not carry anymore
             let toDrop = _.max([0, miningPower(creep) - freeSpace(creep)]);
-            if (toDrop > 0) {
+            if (toDrop || 0 > 0) {
                 creep.drop(RESOURCE_ENERGY, toDrop);
             }
         }
