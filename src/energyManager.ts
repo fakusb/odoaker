@@ -20,7 +20,17 @@ export function reserveEnergy(claimer : Creep, target : EnergyManaged,amount : n
     if(!getState().reservedEnergy[target.id]){
         getState().reservedEnergy[target.id]={}
     }
+    assert((getState().reservedEnergy[target.id][claimer.id]||0)>=0);
     getState().reservedEnergy[target.id][claimer.id]=amount;
+}
+
+export function announceEnergyDelivery(deliverer : Creep, target : EnergyManaged,amount : number){
+    assert(amount >= 0 );
+    if(!getState().reservedEnergy[target.id]){
+        getState().reservedEnergy[target.id]={}
+    }
+    assert((getState().reservedEnergy[target.id][deliverer.id]||0)<=0);
+    getState().reservedEnergy[target.id][deliverer.id]=-amount;
 }
 
 export function totalEnergy(target : EnergyManaged) : number{
@@ -33,6 +43,11 @@ export function totalEnergy(target : EnergyManaged) : number{
     return target.energy;
 }
 
+/**
+ * Energy not yet claimed but on the way/reserved
+ * @param {EnergyManaged} target
+ * @returns {number}
+ */
 export function availableEnergy(target : EnergyManaged) : number{
     return totalEnergy(target)-_.sum(getState().reservedEnergy[target.id]);
 }
@@ -55,6 +70,21 @@ export function garbageCollect(){
     });
 }
 
+
+/**
+ * Cancels an aborted or completed delivery
+ * @param {Creep} deliverer
+ * @param {EnergyManaged} target
+ */
+export function cancelDelivery(deliverer:Creep,target:EnergyManaged){
+    delete getState().reservedEnergy[target.id][deliverer.id];
+}
+
+/**
+ * Cancels an aborted or completed reservation
+ * @param {Creep} claimer
+ * @param {EnergyManaged} target
+ */
 export function cancelReservation(claimer:Creep,target:EnergyManaged){
     delete getState().reservedEnergy[target.id][claimer.id];
 }

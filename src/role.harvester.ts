@@ -1,13 +1,14 @@
 import _ = require('lodash');
 import {ManagedRole} from './roleManager'
 import findEnergy = require('./task.findEnergy')
+import {availableEnergy} from "./energyManager";
 
 const deliverEnergyFilter = {
     filter: (structure:OwnedStructure) => {
         return (structure.structureType === STRUCTURE_EXTENSION ||
             structure.structureType === STRUCTURE_SPAWN ||
             structure.structureType === STRUCTURE_TOWER)
-            && (tower => tower.energy<tower.energyCapacity)(structure as (StructureExtension | StructureSpawn | StructureTower));
+            && (castStruct => availableEnergy(castStruct)<castStruct.energyCapacity)(structure as (StructureExtension | StructureSpawn | StructureTower));
     }
 };
 
@@ -17,7 +18,7 @@ export const harvester =
     new ManagedRole("harvester",
         function(creep:Creep) {
             let targetInRange : Structure = _.first(creep.pos.findInRange(FIND_MY_STRUCTURES, 1, deliverEnergyFilter));
-            let energy = creep.carry.energy ? creep.carry.energy : 0;
+            let energy = creep.carry.energy || 0;
             if (energy > 0 && targetInRange) {
                 let res = creep.transfer(targetInRange, RESOURCE_ENERGY);
                 if (res !== OK) {
