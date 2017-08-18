@@ -1,6 +1,6 @@
 import harvester = require('./role.harvester')
 import upgrader = require('./role.upgrader')
-import miner = require('./role.miner')
+import miner = require('./miningManager')
 import builder = require('./role.builder')
 import {ManagedRole, RoleManager} from './roleManager'
 import creepManager = require('./creepManager')
@@ -41,8 +41,8 @@ function mloop() {
     //TODO: Priority (harvester over upgrader) and simple spawn-control
     let creepsWant : {[name:string]:number} = {};
     creepsWant[harvester.harvester.name]=3;
-    creepsWant[upgrader.roleUpgrader.name]=6;
-    creepsWant[builder.builder.name]=spawn.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)?2:0;
+    creepsWant[upgrader.roleUpgrader.name]=5;
+    creepsWant[builder.builder.name]=Math.min(6,3*(Object.getOwnPropertyNames(Game.constructionSites).length));
 
 
     let creepsPerRole = _.groupBy(Game.creeps,'memory.role');

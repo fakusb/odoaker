@@ -1,5 +1,11 @@
 import {Role} from './roleManager'
 import _ = require('lodash');
+import {assert} from "./utils";
+
+/*function getSourcesToMine() : Source[]{
+    let ids = ['5982fd3eb097071b4adbef0f','5982fd3eb097071b4adbef11'];
+    return _.map(ids,Game.getObjectById as (id:string)=>Source);
+}*/
 
 function miningPower(creep:Creep) {
     return 2*creep.getActiveBodyparts(WORK);
@@ -24,7 +30,7 @@ export const miner = new Role(
         /** @type Source*/
         const source:(Source|null)= Game.getObjectById(creep.memory.source);
         if(!source){
-            console.log("ERROR for miner: no source in same room");
+            console.log("ERROR for miner "+creep.name+": no source in same room");
             return;
         }
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
@@ -61,20 +67,35 @@ export function createMiner(spawn:StructureSpawn,toMine:Source) {
         console.log("Spawn error: " + newCreep);
     }
 }
+interface miningManagerMemory {
+
+}
+
+interface SourceMemory {
+        [id:string] : string
+    }
+
+declare global{
+    interface Memory {
+        sources :  SourceMemory
+    }
+}
+
 export function createMinersForSpawn(spawn:StructureSpawn){
-    let sources = spawn.room.find(FIND_SOURCES);
-    _.forEach(sources,
-        /**
-         * @param {Source} source
-         */
-        function(source:Source){
-            if(!Memory.sources) {
-                Memory.sources = {};
-            }
-            let creep = Memory.sources[source.id];
-            if(!creep || !Game.creeps[creep]){
-                createMiner(spawn,source);
-                console.log('Miner Needed!');
-            }
-        })
+    let sources :SourceMemory= Memory.sources;
+    for (let sourceId in sources){
+        let source = Game.getObjectById(sourceId) as Source;
+        if(!source) {
+            console.log("memory.sources contained wrong source-id: "+sourceId);
+            delete sources[sourceId];
+            continue;
+        }
+        let minerName = sources[sourceId];
+        //console.log("sourceId:"+sourceId+"\nminerName: "+minerName);
+        let creep = Game.creeps[minerName];
+        if(!creep){
+            createMiner(spawn,Game.getObjectById(sourceId) as Source);
+            console.log('Miner Needed!');
+        }
+    };
 }

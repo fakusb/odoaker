@@ -21,10 +21,14 @@ module.exports = function(grunt) {
         ts: {
             default:{
                 tsconfig : true
+            },
+            watch_ts:{
+                tsconfig : true,
+                watch: "."
             }
         }
     });
 
-    grunt.registerTask('default', ['ts', 'screeps']);
+    grunt.registerTask('default', ['ts:default', 'screeps']);
 
 };

@@ -49,6 +49,13 @@ let taskFindEnergy = {
             if(target) {
                 creep.memory.target = target.id;
             }
+            else if (creep.room.name!='W18S22') {
+                //console.log('Fallback moveto');
+                let res = creep.moveTo(Game.spawns['Spawn1']);
+                if(res!=OK){
+                    console.log("Fallback moveTo to start room failed:W18S22");
+                }
+            }
             else{
                 console.log('no energy...');
             }
@@ -75,7 +82,7 @@ let taskFindEnergy = {
                     res=creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
                 }
                 else{
-                    assert(res===OK,"withdraw returned "+res);
+                    assert(res===OK,"withdraw returned "+res+" for creep "+creep.name);
                     EnergyManager.cancelReservation(creep,target);
                     delete creep.memory.target;
                 }
