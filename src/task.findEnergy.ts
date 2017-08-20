@@ -33,7 +33,8 @@ export function moveOrTakeEnergyFrom(creep:Creep, target:EnergyManaged, leaveFre
                 res=creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00'}});
             }
             else{
-                assert(res===OK,"withdraw returned "+res+" for creep "+creep.name+" trying "+amount+" DEBUG "+availableEnergyAtFor(target,creep));
+                if(res!==OK)
+                    console.log("withdraw returned "+res+" for creep "+creep.name+" trying "+amount+" DEBUG "+availableEnergyAtFor(target,creep));
                 EnergyManager.cancelReservation(creep,target);
                 delete creep.memory.target;
             }
