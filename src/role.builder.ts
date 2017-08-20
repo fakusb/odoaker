@@ -1,10 +1,9 @@
-import _ = require('lodash');
-import {ManagedRole} from './roleManager'
-import findEnergy = require('./task.findEnergy')
+import {CreepBlueprint, ManagedRole} from './roleManager'
+import {findEnergy} from "./task.findEnergy"
 import {assert} from "./utils";
-import {CreepBlueprint} from './spawnManager'
+import {requestSpawn} from "./spawnManager";
 
-let blueprint = new CreepBlueprint({},{carry:1,move:2,work:1});
+let blueprint = new CreepBlueprint({},{carry:2,move:3,work:1});
 declare global {
     interface CreepMemory{
         //path?: PathFinderPath;
@@ -53,7 +52,7 @@ function noStructCollisionCostMatrix(roomName:string) : CostMatrix | boolean{
 export let builder = new ManagedRole(
     'builder',
     function(creep:Creep) {
-        let targetInRange = _.first(creep.pos.findInRange(FIND_CONSTRUCTION_SITES,3)) as (ConstructionSite | undefined);
+        /*let targetInRange = _.first(creep.pos.findInRange(FIND_CONSTRUCTION_SITES,1)) as (ConstructionSite | undefined);
         const energy = creep.carry.energy?creep.carry.energy:0;
 
         if(energy > 0 && targetInRange){
@@ -62,9 +61,9 @@ export let builder = new ManagedRole(
                 console.log("builder: unexpected case");
             }
             return;
-        }
-        if (energy < creep.carryCapacity) {
-            findEnergy.run(creep,true);
+        }*/
+        if (creep.carry.energy ==0) {
+            findEnergy(creep,true);
             return;
         }
         if(!creep.memory.builderTarget) {
@@ -76,10 +75,7 @@ export let builder = new ManagedRole(
                 let constructionSite = res.path[res.path.length-1].lookFor(LOOK_CONSTRUCTION_SITES)[0] as ConstructionSite;
                 creep.memory.builderTarget = constructionSite.id;
             }*/
-            let constrSites = Object.getOwnPropertyNames(Game.constructionSites);
-            if(constrSites[0]) {
-                creep.memory.builderTarget = constrSites[0];
-            }
+            creep.memory.builderTarget = ((creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES) as ConstructionSite ||undefined) || {id:undefined}).id;
         }
         if(creep.memory.builderTarget){
             let target = Game.getObjectById(creep.memory.builderTarget)as ConstructionSite|void;
@@ -87,10 +83,15 @@ export let builder = new ManagedRole(
                 delete creep.memory.builderTarget;
                 return;
             }
-            let res = creep.moveTo(target);
-            if (res!=OK){
-                console.log("Builder Path Error: "+res);
+            let resBuild = creep.build(target);
+            if(resBuild == ERR_NOT_IN_RANGE) {
+                let resMove = creep.moveTo(target);
+                if (resMove != OK) {
+                    console.log("Builder Path Error: " + resMove);
+                }
             }
+            else if(resBuild!=OK)
+                console.log("builder build unexpected result: "+resBuild+" for "+creep.name);
             //TODO: recalculate if no progress
         }
         else {
@@ -102,9 +103,9 @@ export let builder = new ManagedRole(
         }
     },
     function(spawn){
-        let maxLevel = blueprint.getMaxLevelForEnergy(spawn.room.energyAvailable*0.7);
+        let maxLevel = blueprint.getMaxLevelForEnergy(spawn.room.energyAvailable);
         if(maxLevel>0) {
-            let newCreep = spawn.createCreep(blueprint.getBodyForLevel(maxLevel), undefined, {role: builder.name});
+            let newCreep = requestSpawn(spawn,blueprint.getBodyForLevel(maxLevel), undefined, {role: {name: builder.name}});
             if (_.isString(newCreep)) {
                 console.log("Spawning " + builder.name);
             }

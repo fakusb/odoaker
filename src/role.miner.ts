@@ -1,6 +1,6 @@
-import {Role} from './roleManager'
-import _ = require('lodash');
+import {CreepBlueprint, Role} from './roleManager'
 import {assert} from "./utils";
+import {requestSpawn} from "./spawnManager";
 
 /*function getSourcesToMine() : Source[]{
     let ids = ['5982fd3eb097071b4adbef0f','5982fd3eb097071b4adbef11'];
@@ -30,7 +30,7 @@ export const miner = new Role(
         /** @type Source*/
         const source:(Source|null)= Game.getObjectById(creep.memory.source);
         if(!source){
-            console.log("ERROR for miner "+creep.name+": no source in same room");
+            console.log("ERROR for miner "+creep.name+": can't see source"+creep.memory.source);
             return;
         }
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
@@ -39,9 +39,19 @@ export const miner = new Role(
         else {
             //CPU
             const container = _.first(source.pos.findInRange(FIND_STRUCTURES,1,{filter :{structureType:STRUCTURE_CONTAINER}}) as StructureContainer[]);
-            if(container && !_.isEqual(creep.pos,container.pos)){
-                creep.moveTo(container);
+            if(container){
+                if(_.isEqual(creep.pos,container.pos)) {
+                    if(container.hits<container.hitsMax){
+                        let res = creep.repair(container);
+                        if(res!=OK)
+                            console.log('miner repair: '+res);
+                    }
+                }
+                else
+                    creep.moveTo(container);
+
             }
+
             //CPU: can save by dropping in bursts
             //harvested; drop exactly what we can not carry anymore
             let toDrop = _.max([0, miningPower(creep) - freeSpace(creep)]);
@@ -51,9 +61,15 @@ export const miner = new Role(
         }
     }
 );
-export function createMiner(spawn:StructureSpawn,toMine:Source) {
-    let newCreep = spawn.createCreep([MOVE, MOVE].concat(new Array(_.max([2, _.min([6, _.floor((spawn.room.energyAvailable - 2 * BODYPART_COST.move) / BODYPART_COST.work)])])).fill(WORK)), undefined, {
-        role: miner.name,
+
+let blueprint = new CreepBlueprint({carry:1,work:1,move:1},{work:1,move:1});
+
+function createMiner(spawn:StructureSpawn,toMine:Source) {
+    let maxLevel = Math.min(5,blueprint.getMaxLevelForEnergy(spawn.room.energyAvailable));
+    let body =  blueprint.getBodyForLevel(maxLevel);
+    //console.log(body);
+    let newCreep = requestSpawn(spawn,body, undefined, {
+        role: {name :miner.name},
         source: toMine.id
     });
     if (_.isString(newCreep)) {
@@ -61,7 +77,7 @@ export function createMiner(spawn:StructureSpawn,toMine:Source) {
         if (!Memory.sources) {
             Memory.sources = {};
         }
-        Memory.sources[toMine.id] = newCreep;
+        Memory.sources[toMine.id].curMiner = newCreep;
     }
     else {
         console.log("Spawn error: " + newCreep);
@@ -72,8 +88,11 @@ interface miningManagerMemory {
 }
 
 interface SourceMemory {
-        [id:string] : string
+    [id:string] : {
+        curMiner : string,
+        curTruck : string,
     }
+}
 
 declare global{
     interface Memory {
@@ -81,7 +100,7 @@ declare global{
     }
 }
 
-export function createMinersForSpawn(spawn:StructureSpawn){
+export function createMinersUsingSpawn(spawn:StructureSpawn){
     let sources :SourceMemory= Memory.sources;
     for (let sourceId in sources){
         let source = Game.getObjectById(sourceId) as Source;
@@ -90,12 +109,12 @@ export function createMinersForSpawn(spawn:StructureSpawn){
             delete sources[sourceId];
             continue;
         }
-        let minerName = sources[sourceId];
+        let minerName = sources[sourceId].curMiner;
         //console.log("sourceId:"+sourceId+"\nminerName: "+minerName);
         let creep = Game.creeps[minerName];
         if(!creep){
             createMiner(spawn,Game.getObjectById(sourceId) as Source);
-            console.log('Miner Needed!');
+            //console.log('Miner Needed!');
         }
-    };
+    }
 }

@@ -1,5 +1,3 @@
-import _ = require('lodash')
-
 export function assert(b:boolean,text?:string){
     if(!b){
         let stack = new Error().stack;

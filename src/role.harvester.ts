@@ -1,7 +1,7 @@
-import _ = require('lodash');
-import {ManagedRole} from './roleManager'
-import findEnergy = require('./task.findEnergy')
+import {CreepBlueprint, ManagedRole} from './roleManager'
+import {findEnergy} from "./task.findEnergy"
 import {availableEnergy} from "./energyManager";
+import {requestSpawn} from "./spawnManager";
 
 const deliverEnergyFilter = {
     filter: (structure:OwnedStructure) => {
@@ -12,7 +12,7 @@ const deliverEnergyFilter = {
     }
 };
 
-
+let blueprint = new CreepBlueprint({},{carry:1,move:1});
 
 export const harvester =
     new ManagedRole("harvester",
@@ -26,7 +26,7 @@ export const harvester =
                 }
             }
             else if (energy === 0) {
-                findEnergy.run(creep,creep.room.energyAvailable<creep.room.energyCapacityAvailable);
+                findEnergy(creep,false);//creep.room.energyAvailable<creep.room.energyCapacityAvailable);
             }
             else {
                 let targets : Structure[] = creep.room.find(FIND_MY_STRUCTURES, deliverEnergyFilter);
@@ -45,10 +45,14 @@ export const harvester =
             }
         },
     function (spawn:StructureSpawn){
-        let newCreep = spawn.createCreep([CARRY,CARRY,MOVE,MOVE],undefined,{role:harvester.name});
+        let body = blueprint.getBodyForLevel(Math.min(10,0.5*blueprint.getMaxLevelForEnergy(spawn.room.energyAvailable)));
+        let newCreep = requestSpawn(spawn,body,undefined,{role: {name: harvester.name}});
         if(_.isString(newCreep)) {
             console.log("Spawning " + harvester.name);
         }
     }
     );
+
+
+
 

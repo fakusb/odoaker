@@ -1,13 +1,18 @@
-import _ = require('lodash');
+import {assert} from "./utils";
 /**
  * Callback for role execution
  *
  * @callback runRole
  * @param {Creep} creep
  */
+
+interface RoleMemory {
+    name : string
+}
+
 declare global {
     interface CreepMemory {
-        role: string
+        role: RoleMemory,
     }
 }
 
@@ -17,14 +22,14 @@ export let RoleManager = {
         this.byName[role.name]=role;
     },
     run (creep:Creep) {
-        let roleName = creep.memory.role;
-        if (!_.isUndefined(roleName)) {
+        let roleName = creep.memory.role.name;
+        if (!_.isUndefined(roleName) && this.byName[roleName]) {
             if (!creep.spawning) {
                 this.byName[roleName].run(creep);
             }
         }
         else {
-            console.log("Unassigned creep:" + creep.name)
+            console.log("Unassigned creep:" + creep.name + "(Don't know role '"+roleName+"')")
         }
     }
 };
@@ -47,27 +52,48 @@ export class ManagedRole extends Role {
     }
 }
 
-    /**
-     *  @type {Object<string,Role>} roles
-     */
-    // static get roleByName(){ return roleByName; };
+type BodyPartMap = {[part in BodyPartConstant]?: number | void}
+export class CreepBlueprint {
+    baseParts : BodyPartMap;
+    repeatParts :BodyPartMap;
+    constructor(baseParts : BodyPartMap, repeatParts : BodyPartMap) {
+        this.baseParts = baseParts;
+        this.repeatParts = repeatParts;
+    }
 
     /**
      *
-     * @param {string} name
-     * @param {runRole} run
+     * @param {Creep} creep
+     * @returns {number} -1 if not applicable, level otherwise
      */
-    // constructor(name,run){
-    //     this.name = name;
-    //     this.run = run;
-    //     Role.roleByName[name]=this;
-    // };
+    getCreepLevel(creep:Creep):number {
+        let partLevels = BODYPARTS_ALL.map((part:BodyPartConstant) =>{
+            let acc = creep.getActiveBodyparts(part);
+            acc -= this.baseParts[part] || 0;
+            if(acc<0){
+                return -1;
+            }
 
-
-
-    // /**
-    //  *
-    //  * @param {Creep} creep
-    //  */
-    // static
-//}
+            if(!this.repeatParts[part]){
+                return Infinity;
+            }
+            return Math.floor(acc/(this.repeatParts[part] || 0));
+        });
+        return Math.min(...partLevels);
+    }
+    getMaxLevelForEnergy(e:number){
+        const getCost = (arg : BodyPartMap) => _.sum(BODYPARTS_ALL,(part)=>(BODYPART_COST[part]*(arg[part] as number)));
+        const baseCost = getCost(this.baseParts);
+        const repeatCosts = getCost(this.repeatParts);
+        //console.log("getMaxLevel: "+e+" "+baseCost+" "+repeatCosts);
+        return e < baseCost? -1 : Math.floor((e - baseCost)/repeatCosts);
+    }
+    getBodyForLevel(i:number):BodyPartConstant[]{
+        assert (i>=0);
+        let res = [] as BodyPartConstant[];
+        BODYPARTS_ALL.forEach((part) => {
+            let size = Math.floor(((this.baseParts[part] ||0)+i*(this.repeatParts[part] ||0)));
+            res = res.concat(new Array(size).fill(part))});
+        return res;
+    }
+}

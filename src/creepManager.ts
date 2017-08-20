@@ -1,4 +1,3 @@
-import _ = require("lodash");
 import {RoleManager} from "./roleManager";
 export function buryDeadCreeps(){
     _.forEach(Memory.creeps,function (creep:Creep,name:string) {

@@ -1,11 +1,11 @@
 
 import {assert} from "./utils";
-import _ = require('lodash')
 
 export type EnergyManaged = StructureSpawn | StructureExtension | StructureContainer | StructureStorage | StructureTower | Resource;
 
 interface energyManagerState {
     reservedEnergy : {[targetId:string]:{[claimerId:string]:number}};
+    keepBelow? : number;
 }
 function getState() : energyManagerState{
     if(!Memory.energyManager){
@@ -52,23 +52,33 @@ export function totalEnergy(target : EnergyManaged) : number{
 export function availableEnergy(target : EnergyManaged) : number{
     return totalEnergy(target)-_.sum(getState().reservedEnergy[target.id]);
 }
+export function availableEnergyAtFor(target : EnergyManaged,creep:Creep) : number{
+    let ownReserved = getState().reservedEnergy[target.id][creep.id];
+    assert(ownReserved as any,"No reservation by "+creep.id+" at "+target.id);
+    return Math.min(totalEnergy(target),availableEnergy(target)+ownReserved,ownReserved);
+}
 
 export function garbageCollect(){
     let state = getState();
     _.forOwn(state.reservedEnergy,(reservations,targetId)=>{
         if(!Game.getObjectById(targetId!)){
             delete state.reservedEnergy[targetId!];
-            console.log('GC energy source:'+targetId);
+            //console.log('GC energy source:'+targetId);
         }
         else{
             _.forOwn(reservations,(amount,claimerId)=> {
                 if(!Game.getObjectById(claimerId)){
                     delete reservations[claimerId!];
-                    console.log('GC energy claim by:'+claimerId);
+                    //console.log('GC energy claim by:'+claimerId);
                 }
             });
         }
     });
+    for(let id in state.reservedEnergy){
+        let reservations = state.reservedEnergy[id];
+        if(Object.getOwnPropertyNames(reservations).length==0)
+            delete state.reservedEnergy[id];
+    }
 }
 
 
