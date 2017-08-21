@@ -87,12 +87,7 @@ interface miningManagerMemory {
 
 }
 
-interface SourceMemory {
-    [id:string] : {
-        curMiner : string,
-        curTruck : string,
-    }
-}
+
 
 declare global{
     interface Memory {

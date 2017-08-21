@@ -6,6 +6,8 @@ import {ManagedRole, RoleManager} from './roleManager'
 import creepManager = require('./creepManager')
 import energyManager = require('./energyManager')
 import {ensureRefillingAllSpawns} from "./refillManager";
+import baseManager = require('./baseManager');
+
 // loglevel = 0;
 
 //console.log('uploaded');
@@ -13,7 +15,7 @@ import {ensureRefillingAllSpawns} from "./refillManager";
 // noinspection JSUnusedGlobalSymbols
 function mloop() {
     // executed every tick
-
+    baseManager.initTick();
     creepManager.buryDeadCreeps();
     energyManager.garbageCollect();
 
@@ -49,7 +51,7 @@ function mloop() {
 
     //TODO: Priority (harvester over upgrader) and simple spawn-control
     let creepsWant : {[name:string]:number} = {};
-    creepsWant[harvester.harvester.name]=3;
+    creepsWant[harvester.harvester.name]=2;
     creepsWant[upgrader.roleUpgrader.name]=1;
     creepsWant[builder.builder.name]=Math.min(3,Object.getOwnPropertyNames(Game.constructionSites).length);
 

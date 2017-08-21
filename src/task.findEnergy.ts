@@ -101,7 +101,7 @@ export function findEnergy(creep:Creep,useStorage:boolean){
             }
         }
         else {
-            console.log('no energy for Creep ' + creep.name + ' with role ' + creep.memory.role.name);
+            //console.log('no energy for Creep ' + creep.name + ' with role ' + creep.memory.role.name);
         }
     }
     if(creep.memory.target)
