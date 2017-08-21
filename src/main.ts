@@ -52,7 +52,8 @@ function mloop() {
     //TODO: Priority (harvester over upgrader) and simple spawn-control
     let creepsWant : {[name:string]:number} = {};
     creepsWant[harvester.harvester.name]=2;
-    creepsWant[upgrader.roleUpgrader.name]=1;
+    creepsWant[upgrader.roleUpgrader.name]=
+        spawn.room.storage!.store.energy >100000?3:1;
     creepsWant[builder.builder.name]=Math.min(3,Object.getOwnPropertyNames(Game.constructionSites).length);
 
 
