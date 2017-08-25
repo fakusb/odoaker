@@ -4,6 +4,7 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-screeps');
     grunt.loadNpmTasks("grunt-ts");
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
     // noinspection Annotator
     grunt.initConfig({
@@ -26,9 +27,17 @@ module.exports = function(grunt) {
                 tsconfig : true,
                 watch: "."
             }
+        },
+        copy: {
+            default:{
+                expand: true,
+                cwd: 'node_modules/screeps-profiler',
+                src: '*.js',
+                dest: 'built/',
+            }
         }
     });
 
-    grunt.registerTask('default', ['ts:default', 'screeps']);
+    grunt.registerTask('default', ['copy','ts:default','screeps']);
 
 };

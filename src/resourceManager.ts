@@ -5,13 +5,9 @@ export type EnergyManaged = StructureSpawn | StructureExtension | StructureConta
 
 interface energyManagerState {
     reservedEnergy : {[targetId:string]:{[claimerId:string]:number}};
-    keepBelow? : number;
 }
 function getState() : energyManagerState{
-    if(!Memory.energyManager){
-        Memory.energyManager = {reservedEnergy : {}};
-    }
-    return Memory.energyManager;
+    return Memory.energyManager = Memory.energyManager || {};
 }
 
 // Supports virtual energy levels so that creeps can 'reserve' energy from remote location
@@ -44,6 +40,11 @@ export function totalEnergy(target : EnergyManaged) : number{
     return target.energy;
 }
 
+export function availableInRoom(room:Room){
+    let stores = room.find<StructureStorage|StructureContainer>(FIND_STRUCTURES,{filter:(o:Structure)=>(_.contains([STRUCTURE_CONTAINER,STRUCTURE_STORAGE],o.structureType)) });
+    let piles = room.find()
+}
+
 /**
  * Energy not yet claimed but on the way/reserved
  * @param {EnergyManaged} target
@@ -58,7 +59,7 @@ export function availableEnergyAtFor(target : EnergyManaged,creep:Creep) : numbe
     return Math.min(totalEnergy(target),availableEnergy(target)+ownReserved,ownReserved);
 }
 
-export function garbageCollect(){
+function garbageCollect(){
     let state = getState();
     _.forOwn(state.reservedEnergy,(reservations,targetId)=>{
         if(!Game.getObjectById(targetId!)){
@@ -79,6 +80,10 @@ export function garbageCollect(){
         if(Object.getOwnPropertyNames(reservations).length==0)
             delete state.reservedEnergy[id];
     }
+}
+
+export function initTick(){
+    garbageCollect();
 }
 
 

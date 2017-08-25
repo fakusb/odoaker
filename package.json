@@ -8,7 +8,9 @@
     "grunt": "^1.0.1",
     "lodash": "3.10.1",
     "@types/lodash": "3.10.1",
-    "typescript": "^2.4.2"
+    "typescript": "^2.4.2",
+    "screeps-profiler": "^2.0.1",
+    "grunt-contrib-copy": "^1.0.0"
   },
   "dependencies": {
   }

@@ -1,8 +1,8 @@
 //let Role = require('role');
 //import Miner =  require('./role.miner');
-import EnergyManager = require('./energyManager');
+import EnergyManager = require('./resourceManager');
 import {assert, freeCapacity} from "./utils";
-import {availableEnergyAtFor, EnergyManaged, totalEnergy} from "./energyManager";
+import {availableEnergyAtFor, EnergyManaged, totalEnergy} from "./resourceManager";
 
 declare global {
     interface CreepMemory {
@@ -87,9 +87,12 @@ export function findEnergy(creep:Creep,useStorage:boolean){
             }
         }));
 
-
         //CPU: do not use path
         let target = creep.pos.findClosestByPath(targets);
+        if(!target){
+            target = Game.getObjectById("599da60679765f2bceab3716") as StructureContainer;
+        }
+        //console.log(target.id);
         if (target) {
             creep.memory.target = target.id;
         }

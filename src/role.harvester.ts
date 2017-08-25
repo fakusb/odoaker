@@ -1,7 +1,6 @@
 import {CreepBlueprint, ManagedRole} from './roleManager'
 import {findEnergy} from "./task.findEnergy"
-import {availableEnergy} from "./energyManager";
-import {requestSpawn} from "./spawnManager";
+import {availableEnergy} from "./resourceManager";
 
 const deliverEnergyFilter = {
     filter: (structure:OwnedStructure) => {
@@ -37,6 +36,8 @@ export const harvester =
                 else {
                     target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES,{filter: {structureType : STRUCTURE_STORAGE}}) as StructureStorage | undefined;
                 }
+                if(!target)
+                    target = Game.spawns.Spawn1.room.storage;
                 if(target){
                     if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});

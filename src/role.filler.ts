@@ -1,8 +1,7 @@
 import {CreepBlueprint, Role} from './roleManager'
 import {findEnergy} from "./task.findEnergy"
-import {announceEnergyDelivery, availableEnergy, cancelDelivery, EnergyManaged} from "./energyManager";
+import {announceEnergyDelivery, availableEnergy, cancelDelivery, EnergyManaged} from "./resourceManager";
 import {freeCapacity} from "./utils";
-import {requestSpawn} from "./spawnManager";
 
 declare global{
     interface CreepMemory{

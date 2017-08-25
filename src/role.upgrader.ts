@@ -1,6 +1,6 @@
 import {CreepBlueprint, ManagedRole} from './roleManager'
 import {findEnergy, moveOrTakeEnergyFrom} from './task.findEnergy';
-import {availableEnergy, EnergyManaged, totalEnergy} from "./energyManager";
+import {availableEnergy, EnergyManaged, totalEnergy} from "./resourceManager";
 import {requestSpawn} from "./spawnManager";
 
 

@@ -1,7 +1,6 @@
 import {CreepBlueprint, ManagedRole} from './roleManager'
 import {findEnergy} from "./task.findEnergy"
 import {assert} from "./utils";
-import {requestSpawn} from "./spawnManager";
 
 let blueprint = new CreepBlueprint({},{carry:2,move:3,work:1});
 declare global {
@@ -105,7 +104,7 @@ export let builder = new ManagedRole(
     function(spawn){
         let maxLevel = blueprint.getMaxLevelForEnergy(spawn.room.energyAvailable);
         if(maxLevel>0) {
-            let newCreep = requestSpawn(spawn,blueprint.getBodyForLevel(maxLevel), undefined, {role: {name: builder.name}});
+            let newCreep = requestRoleSpawn(spawn,blueprint.getBodyForLevel(maxLevel), undefined, {role: {name: builder.name}});
             if (_.isString(newCreep)) {
                 console.log("Spawning " + builder.name);
             }

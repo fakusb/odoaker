@@ -6,13 +6,15 @@ import {assert} from "./utils";
  * @param {Creep} creep
  */
 
-interface RoleMemory {
-    name : string
-}
+
 
 declare global {
     interface CreepMemory {
-        role: RoleMemory,
+        roleMem: RoleMemory,
+        role: string
+    }
+    interface RoleMemory {
+        name : string
     }
 }
 
@@ -34,7 +36,7 @@ export let RoleManager = {
     }
 };
 
-export class Role {
+export class Role<T extends RoleMemory> {
     name: string;
     run: (x: Creep) => void;
     constructor(name:string,run:(x: Creep) => void) {
@@ -44,7 +46,7 @@ export class Role {
     }
 }
 
-export class ManagedRole extends Role {
+export class ManagedRole<T extends RoleMemory> extends Role<T> {
     create:(x:StructureSpawn) => void;
     constructor(name:string,run:(x: Creep) => void,create:(x: StructureSpawn) => void) {
         super(name,run);

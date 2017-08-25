@@ -6,10 +6,12 @@
     "module": "commonjs",
     "noImplicitReturns": true,
     "strict":true,
-    "rootDir": "./src"
+    "experimentalDecorators": true,
+    "rootDir": "./src/"
   },
   "include": [
-    "./src/**/*",
+    "./src/main.ts",
+    "./src/screeps-profiler.d.ts",
     "./typings/**/*.d.ts"
   ]
 }
